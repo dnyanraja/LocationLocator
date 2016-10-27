@@ -13,7 +13,7 @@ function themeslug_enqueue_script() {
 		echo '<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>';
 		echo '<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>';
 	  	$url = plugin_dir_url( __FILE__ ) . 'getlonglat.js';
-	  	$jurl = plugin_dir_url( __FILE__ ) . 'outputjson.js';
+	  	$jurl = plugin_dir_url( __FILE__ ) . 'outputdistance.js';
 	  	$lolocss = plugin_dir_url( __FILE__ ) . 'lolo.css';
 	    	echo '<script type="text/javascript" src="'. $url . '"></script>';
 	        echo '<script type="text/javascript" src="'. $jurl . '"></script>';
