@@ -1,5 +1,4 @@
-jQuery(document).ready(function($) {
-            
+jQuery(document).ready(function($) {            
       setTimeout(function(){
           var ulon = document.getElementById('long').innerHTML;
        var ulat = document.getElementById('latt').innerHTML;
@@ -18,13 +17,12 @@ jQuery(document).ready(function($) {
 document.onreadystatechange = function(){              
                  var y = document.getElementById("latt");
                 var x = document.getElementById("long");
-                        window.navigator.geolocation.getCurrentPosition(function(pos) {
+                   window.navigator.geolocation.getCurrentPosition(function(pos) {
                               y.innerHTML = pos.coords.latitude;
                               x.innerHTML = pos.coords.longitude;
                             });
      }
-
-  /* main function */
+/* main function */
   function findDistance( t1, n1, t2, n2) {
       var Rm = 3961; // mean radius of the earth (miles) at 39 degrees from the equator
       var Rk = 6373; // mean radius of the earth (km) at 39 degrees from the equator    
