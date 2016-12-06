@@ -2,6 +2,8 @@ jQuery(document).ready(function($) {
       setTimeout(function(){
           var ulon = document.getElementById('long').innerHTML;
        var ulat = document.getElementById('latt').innerHTML;
+            //var urad = document.getElementById('radius').innerHTML;
+            
             $(".loc").each(function(){
                 var llat = $(this).find(".llat").text(); 
                 var llon = $(this).find(".llon").text(); 
