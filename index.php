@@ -3,7 +3,7 @@
  * Plugin Name: LocationsLocator
  * Plugin URI: http://ganeshveer.tk
  * Description: Get live details about the all the countries Names, Capital and population
- * Version: 1.0.0
+ * Version: 1.1.2
  * Author: Ganesh Veer
  * Author URI: 
  * License: GPL2
@@ -15,9 +15,9 @@ function themeslug_enqueue_script() {
 	  	$url = plugin_dir_url( __FILE__ ) . 'getlonglat.js';
 	  	$jurl = plugin_dir_url( __FILE__ ) . 'outputdistance.js';
 	  	$lolocss = plugin_dir_url( __FILE__ ) . 'lolo.css';
-	    	echo '<script type="text/javascript" src="'. $url . '"></script>';
-	        echo '<script type="text/javascript" src="'. $jurl . '"></script>';
-        	wp_enqueue_style('lolocss', $lolocss);
+    	echo '<script type="text/javascript" src="'. $url . '"></script>';
+        echo '<script type="text/javascript" src="'. $jurl . '"></script>';
+        wp_enqueue_style('lolocss', $lolocss);
 }
 add_action( 'wp_enqueue_scripts', 'themeslug_enqueue_script' );
 
@@ -94,7 +94,9 @@ add_action( 'add_meta_boxes', 'location_details_add_meta_box' );
 
 function location_details_html( $post) {
 	wp_nonce_field( '_location_details_nonce', 'location_details_nonce' ); ?>
+
 	<p>Address, website, url, email etc</p>
+
 	<p>
 		<label for="location_details_street_1"><?php _e( 'Street 1', 'location_details' ); ?></label><br>
 		<input type="text" name="location_details_street_1" id="location_details_street_1" value="<?php echo location_details_get_meta( 'location_details_street_1' ); ?>">
@@ -180,86 +182,78 @@ add_action( 'save_post', 'location_details_save' );
 /*****************************
 	Settings Page 
 ******************************/
-
 add_action( 'admin_menu', 'lolo_add_admin_menu' );
 add_action( 'admin_init', 'lolo_settings_init' );
 
 function lolo_add_admin_menu() { 
-	add_submenu_page( 'edit.php?post_type=lolo_locations', 
-		'Locations Locator', 
-		'LL Settings', 
-		'manage_options', 
-		'locations_locator', 
+//template - add_submenu_page($parent_slug, $page_title, $menu_title, $capability, $menu_slug, callable $function = '' )
+add_submenu_page( 'edit.php?post_type=lolo_locations', 'Locations Locator Settings', 'LL Settings', 'manage_options', 'locations_locator_settings', 
 		'lolo_options_page' );
-
 }
-
 function lolo_settings_init() { 
-	register_setting( 'loloPage', 'lolo_settings' );
-	add_settings_section(
-		'lolo_pluginPage_section', 
-		__( 'Edit section to adjust the locations', 'lolo' ), 
-		'lolo_settings_section_callback', 
-		'loloPage'
-	);
-	add_settings_field( 
-		'lolo_text_field_0', 
-		__( 'Radius Options', 'lolo' ), 
-		'lolo_text_field_0_render', 
-		'loloPage', 
-		'lolo_pluginPage_section' 
-	);
-	add_settings_field( 
-		'lolo_select_field_1', 
-		__( 'Distance Unit', 'lolo' ), 
-		'lolo_select_field_1_render', 
-		'loloPage', 
-		'lolo_pluginPage_section' 
-	);
-}
+	//template - register_setting( $option_group, $option_name, $sanitize_callback ); 
+	register_setting( 'loloPage_group', 'lolo_radius' );
+	register_setting( 'loloPage_group', 'lolo_unit' );
 
-function lolo_text_field_0_render(){ 
-	$options = get_option('lolo_settings'); 	?>
-	<input type='text' name='lolo_settings[lolo_text_field_0]' value='<?php echo $options['lolo_text_field_0']; ?>'>
-<?php }
-function lolo_select_field_1_render(){ 
-	$options = get_option('lolo_settings'); ?>
-	<select name='lolo_settings[lolo_select_field_1]'>
-		<option value='1' <?php selected( $options['lolo_select_field_1'], 1 ); ?>>Miles</option>
-		<option value='2' <?php selected( $options['lolo_select_field_1'], 2 ); ?>>Kilometers</option>
-	</select>
-<?php
+	//template- add_settings_section( $id, $title, $callback, $page );
+	add_settings_section('lolo_pluginPage_section', __( 'Locations Locator display settings', 'lolo' ), 
+	'lolo_settings_section_callback', 'loloPage');
+
+	add_settings_field( 'location_radius', __( 'Radius Options', 'lolo' ), 'location_radius_render', 'loloPage', 'lolo_pluginPage_section' );
+	add_settings_field( 'location_distance_unit', __( 'Distance Unit', 'lolo' ), 'location_distance_unit_render', 'loloPage', 'lolo_pluginPage_section' );
 }
+// function to display admin form and process it
+function lolo_options_page(){
+	include (plugin_dir_path(__FILE__).'/template/display-adminform.php');
+}
+// function to render section related info
 function lolo_settings_section_callback(){ 
-	//echo __( 'This section description', 'lolo' );
-	 $options = get_option('lolo_settings');
-	 echo $options['lolo_text_field_0'];
-
-	 $selected = $options['lolo_select_field_1'];
-	 if($selected == 1){
-	 	echo "Miles";
-	 }else{ echo "Kilometers";}	
+	//echo __( 'Edit section to adjust the locations display on frontend', 'lolo' );	
 }
-function lolo_options_page(){ 
+//Radius field render
+function location_radius_render(){ 
+	$radius =esc_attr(get_option('lolo_radius'));
 	?>
-	<form action='options.php' method='post'>
+	<input type="text" name="lolo_radius" value="<?php echo $radius; ?>" />
+	<?php
+}
+//distance field render
+function location_distance_unit_render(){ 
+	$options = get_option('lolo_unit');
+	$items = array("Miles", "Kilometers");
+	echo "<select id='drop_down1' name='lolo_unit[dropdown1]'>";
+	foreach($items as $item) {
+		$selected = ($options['dropdown1']==$item) ? 'selected="selected"' : '';
+		echo "<option value='$item' $selected>$item</option>";
+	}
+	echo "</select>";
+}
+/*function lolo_options_page(){ 
+	?>
+	<!--<form action='options.php' method='post'>
 		<h2>Locations Locator Settings</h2>
 		<?php
 		settings_fields('loloPage');
 		do_settings_sections('loloPage');
 		submit_button();
 		?>
-	</form>
+	</form> -->
 	<?php
 }
-
+*/
 /*************************************
-Shortcode	usage : [lolomap]
+	Generate Shortcode 
+	usage : [lolomap]
 ************************************/
 function lolo_mapgenerator(){
+	$unit = get_option('lolo_unit');
+	$radius =esc_attr(get_option('lolo_radius'));		
+	preg_match('#\((.*?)\)#', $radius, $match); // get the default radius
+	
+	 
 	echo "<div id='dvMap'></div>";	
 	echo "<div id='allMap'>
-	<ul id='allloc'><li id='long'></li><li id='latt'></li>"; 
+	<ul id='allloc'><li id='long'></li><li id='latt'></li><li id='radius'>".$match[1]."</li>"; 
 	?>
 	<script>var ulong = document.getElementById('long').innerHTML;
 	var ulatt = document.getElementById('latt').innerHTML;
@@ -274,21 +268,21 @@ function lolo_mapgenerator(){
 	    if($posts){
 	    	$list = array();
 	    foreach ($posts as $post) {
-		    	echo '<li  class="loc"><h3>'.$post->post_title.'</h3><span>'
+	    	echo '<li  class="loc"><h3>'.$post->post_title.'</h3><span>'
 	    		 .get_post_meta($post->ID, 'location_details_street_1', true).', '
 	    		 .get_post_meta($post->ID, 'location_details_street_2', true).'<br/>'
 	    		 .get_post_meta($post->ID, 'location_details_city', true).', '
 	    		 .get_post_meta($post->ID, 'location_details_state', true).'<br/>'	    		 
 	    		 .get_post_meta($post->ID, 'location_details_country', true).' - '
 	    		 .get_post_meta($post->ID, 'location_details_zip_postal_code', true).'<br/>
-	    		 <a href="'.get_post_meta($post->ID, 'location_details_website', true).'" target="_blank">'
-			 .get_post_meta($post->ID, 'location_details_website', true).'</a><br/>
-			  <a href="mailto'.get_post_meta($post->ID, 'location_details_email', true).'" target="_blank">'
+	    		 <a href="http://'.get_post_meta($post->ID, 'location_details_website', true).'" target="_blank">'
+				 .get_post_meta($post->ID, 'location_details_website', true).'</a><br/>
+				 <a href="http://mailto'.get_post_meta($post->ID, 'location_details_email', true).'" target="_blank">'
 	    		 .get_post_meta($post->ID, 'location_details_email', true).'</a><br/>'
 	    		 .get_post_meta($post->ID, 'location_details_phone', true).'<br/>
-	    		 Distance :<span class="distance"></span> Km</span>
+	    		 Distance: <span class="distance"> </span> '. $unit['dropdown1'].'
 	    		 <span class="llat">'.get_post_meta($post->ID, 'location_details_lat', true).'</span><br/>
-	    		 <span class="llon">'.get_post_meta($post->ID, 'location_details_long', true).'</span></li>';   		 
+	    		 <span class="llon">'.get_post_meta($post->ID, 'location_details_long', true).'</span></span></li>';	    		 
 	    		
 	  		  }
 	  	}
@@ -297,17 +291,18 @@ function lolo_mapgenerator(){
 add_shortcode( 'lolomap', 'lolo_mapgenerator' );
 
 function get_all_locations(){	
-    $posts = get_posts( array(
+	$posts = get_posts( array(
         'post_type'        => 'lolo_locations',
         'posts_per_page'   => -1,
         'orderby'          => 'title',
         'order'            => 'ASC',        
         'post_status'      => 'publish'
-    ) );
+    ));
 
     if($posts){
-    $list = array();
+	    $list = array(); 
     foreach ($posts as $post) {
+    	
         $list[] = array(
            // 'id'   => $post->ID,
             'title' => $post->post_title,
@@ -318,11 +313,15 @@ function get_all_locations(){
             'contry' => get_post_meta($post->ID, 'location_details_country', true),
             'description' =>get_post_meta($post->ID, 'location_details_street_1', true)
         );
+
     	}
 	}
      echo "<script>/* <![CDATA[ */";
      echo "var markers =".json_encode($list);
      echo "/* ]]> */</script>";       
+     die;
 }
 add_action('wp_footer', 'get_all_locations' );
+
+
 ?>
