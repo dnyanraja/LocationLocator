@@ -14,7 +14,7 @@ function themeslug_enqueue_script() {
 		echo '<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>';
 		echo '<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>';
 	  	//$lolocss = plugin_dir_url( __FILE__ ) . 'lolo.css';
-       	wp_register_script('getlonglat', plugin_dir_url(__FILE__).'js/getlonglat.js');
+       		wp_register_script('getlonglat', plugin_dir_url(__FILE__).'js/getlonglat.js');
 		wp_enqueue_script( 'getlonglat' );
 		wp_register_script('outputdistance', plugin_dir_url(__FILE__).'js/outputdistance.js');
 		
@@ -22,7 +22,7 @@ function themeslug_enqueue_script() {
 		preg_match('#\((.*?)\)#', $radius, $match);  // retrieve value of default radius
 	
 		$translation_array = array(
-		'some_string' => __( 'Some string to translate', 'plugin-domain' ),
+		'some_str' => __( 'Some string', 'lolo_plugin' ),
 		'radius' => $match[1]
 		);
 		wp_localize_script( 'outputdistance', 'lolo_object', $translation_array );
