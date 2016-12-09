@@ -1,9 +1,0 @@
-#dvMap{width:100%; height: 450px;}
-#allMap{width: 200px; min-height: 200px;}
-#allloc{margin-left:25px;}
-.loc{    min-width: 200px;}
-.loc h3{margin:20px auto 10px;}
-.loc .llat{visibility:hidden;}
-.loc .llon{visibility:hidden;}
-#long{visibility:hidden;}
-#latt{visibility:hidden;}
