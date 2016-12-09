@@ -3,7 +3,7 @@
  * Plugin Name: LocationsLocator
  * Plugin URI: http://ganeshveer.tk
  * Description: Get live details about the all the countries Names, Capital and population
- * Version: 1.0.0
+ * Version: 1.1.2
  * Author: Ganesh Veer
  * Author URI: 
  * License: GPL2
