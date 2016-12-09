@@ -3,21 +3,31 @@
  * Plugin Name: LocationsLocator
  * Plugin URI: http://ganeshveer.tk
  * Description: Get live details about the all the countries Names, Capital and population
- * Version: 1.1.2
+ * Version: 1.0.0
  * Author: Ganesh Veer
  * Author URI: 
  * License: GPL2
  **/
 
 function themeslug_enqueue_script() {
+		wp_enqueue_style('lolocss', plugin_dir_url( __FILE__ ) . 'css/lolo.css', array(), '1.0.0', 'all');		
 		echo '<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>';
 		echo '<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>';
-	  	$url = plugin_dir_url( __FILE__ ) . 'getlonglat.js';
-	  	$jurl = plugin_dir_url( __FILE__ ) . 'outputdistance.js';
-	  	$lolocss = plugin_dir_url( __FILE__ ) . 'lolo.css';
-    	echo '<script type="text/javascript" src="'. $url . '"></script>';
-        echo '<script type="text/javascript" src="'. $jurl . '"></script>';
-        wp_enqueue_style('lolocss', $lolocss);
+	  	//$lolocss = plugin_dir_url( __FILE__ ) . 'lolo.css';
+       	wp_register_script('getlonglat', plugin_dir_url(__FILE__).'js/getlonglat.js');
+		wp_enqueue_script( 'getlonglat' );
+		wp_register_script('outputdistance', plugin_dir_url(__FILE__).'js/outputdistance.js');
+		
+		$radius = esc_attr(get_option('lolo_radius')); // get the radius options from backend
+		preg_match('#\((.*?)\)#', $radius, $match);  // retrieve value of default radius
+	
+		$translation_array = array(
+		'some_string' => __( 'Some string to translate', 'plugin-domain' ),
+		'radius' => $match[1]
+		);
+		wp_localize_script( 'outputdistance', 'lolo_object', $translation_array );
+
+		wp_enqueue_script( 'outputdistance' );
 }
 add_action( 'wp_enqueue_scripts', 'themeslug_enqueue_script' );
 
@@ -90,7 +100,6 @@ function location_details_add_meta_box() {
 	);
 }
 add_action( 'add_meta_boxes', 'location_details_add_meta_box' );
-
 
 function location_details_html( $post) {
 	wp_nonce_field( '_location_details_nonce', 'location_details_nonce' ); ?>
@@ -247,13 +256,13 @@ function location_distance_unit_render(){
 ************************************/
 function lolo_mapgenerator(){
 	$unit = get_option('lolo_unit');
-	$radius =esc_attr(get_option('lolo_radius'));		
-	preg_match('#\((.*?)\)#', $radius, $match); // get the default radius
-	
-	 
+	//$radius = esc_attr(get_option('lolo_radius'));		
+	//preg_match('#\((.*?)\)#', $radius, $match); // get the default radius
+	//'<li id='radius'>".$match[1]."</li>"';
+
 	echo "<div id='dvMap'></div>";	
 	echo "<div id='allMap'>
-	<ul id='allloc'><li id='long'></li><li id='latt'></li><li id='radius'>".$match[1]."</li>"; 
+	<ul id='allloc'><li id='long'></li><li id='latt'></li>"; 
 	?>
 	<script>var ulong = document.getElementById('long').innerHTML;
 	var ulatt = document.getElementById('latt').innerHTML;
@@ -280,7 +289,7 @@ function lolo_mapgenerator(){
 				 <a href="http://mailto'.get_post_meta($post->ID, 'location_details_email', true).'" target="_blank">'
 	    		 .get_post_meta($post->ID, 'location_details_email', true).'</a><br/>'
 	    		 .get_post_meta($post->ID, 'location_details_phone', true).'<br/>
-	    		 Distance: <span class="distance"> </span> '. $unit['dropdown1'].'
+	    		 Distance: <span class="distance"> </span> <span id="unit">'.$unit['dropdown1'].'</span>
 	    		 <span class="llat">'.get_post_meta($post->ID, 'location_details_lat', true).'</span><br/>
 	    		 <span class="llon">'.get_post_meta($post->ID, 'location_details_long', true).'</span></span></li>';	    		 
 	    		
@@ -323,5 +332,16 @@ function get_all_locations(){
 }
 add_action('wp_footer', 'get_all_locations' );
 
-
+// Register the script - to pass radius value
+//wp_register_script( 'outputdistance', plugin_dir_url(__FILE__).'js/outputdistance.js ); // already registered at top
+// Localize the script with new data
+/*$radius = esc_attr(get_option('lolo_radius'));		
+preg_match('#\((.*?)\)#', $radius, $match); // get the default radius
+$translation_array = array(
+	'some_string' => __( 'Some string to translate', 'plugin-domain' ),
+	'a_value' => '10'
+);
+wp_localize_script( 'outputdistance', 'object_name', $translation_array );
+// Enqueued script with localized data.
+wp_enqueue_script( 'outputdistance' );*/
 ?>
